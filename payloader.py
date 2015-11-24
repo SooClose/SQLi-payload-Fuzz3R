@@ -143,9 +143,9 @@ def Main():
 
 	
 	for line in f.readlines():
-		 PayloadScan(target,args.uc,args.pc,args.exception,line.rstrip('\n'))
-         #t = threading.Thread(target = PayloadScan, args = (target,args.uc,args.pc,args.exception,line.rstrip('\n')))
-         #t.start()
+		 
+         t = threading.Thread(target = PayloadScan, args = (target,args.uc,args.pc,args.exception,line.rstrip('\n')))
+         t.start()
 	
 
 if __name__ == "__main__":
