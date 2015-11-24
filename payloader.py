@@ -51,14 +51,14 @@ def Main():
                           action = "store", #stored
                           dest   = "target",
                           #type   = "string", #int tipi
-                          help = "for example: ./bruteforce.py -t victim.com")
+                          help = "for example: ./payloader.py -t victim.com")
 
 
 	parser.add_argument('-uc',
                           action = "store", #stored
                           dest   = "uc",
                           #type   = "string", #int tipi
-                          help = "for example: ./bruteforce.py -uc username column")
+                          help = "for example: ./payloader.py -uc username column")
 
 
 
@@ -66,14 +66,14 @@ def Main():
                           action = "store", #stored
                           dest   = "pc",
                           #type   = "string", #int tipi
-                          help = "for example: ./bruteforce.py -pc password column")
+                          help = "for example: ./payloader.py -pc password column")
 
 
 	parser.add_argument('-exception',
                           action = "store", #stored
                           dest   = "exception",
                           #type   = "string", #int tipi
-                          help = "for example: ./bruteforce.py -a exception word")
+                          help = "for example: ./payloader.py -a exception word")
 
 
 
