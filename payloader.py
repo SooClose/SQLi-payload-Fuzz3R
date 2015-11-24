@@ -50,16 +50,26 @@ def PayloadScan(target,username,password,exception,payload):
 		opener   = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
 		data     = urllib.urlencode({username:payload,password:payload})
 		
-		lock.acquire()
-		u        = opener.open(target, data)
-		lock.release()
+		lock.acquire() #saxla
+		try: 
+			
+			try:	
+				u    = opener.open(target, data)
+			except urllib2.HTTPError:
+				sys.exit('Not valid url')
+		except ValueError:
+			sys.exit('Url is not true')
+		
+
+		lock.release() #sur emioglu
 		getcode  = u.getcode()
 		match    = re.findall(r'{}'.format(exception),u.read())
 
 		if(match):
-				print  "%s  %s" % (payload,colored('[-]','red'))  
+				print  " %s  %s" % (payload,colored('[-]','red'))  
 		else:
-				print  "%s  %s" % (payload,colored('[+]','green'))
+				print  " %s  %s" % (payload,colored('[+]','green'))
+	
 	except KeyboardInterrupt:
 		print 'stopped'
 		
@@ -104,8 +114,14 @@ def Main():
 
 	args   = parser.parse_args()
 
+		
 
+	target   = args.target
 
+	print '--------------------------------------------'	
+
+	if args.target is None:
+		sys.exit('Url is empty')
 	if args.target:
 		print("# Creating target " + args.target)
 
@@ -120,10 +136,6 @@ def Main():
 	if args.exception:
 		print("# Creating exception " + args.exception)	
 
-	target   = args.target
-
-	print '--------------------------------------------'	
-
 	try: 
 		f 		= open("payloads.txt","r")
 	except IOError:
@@ -131,9 +143,9 @@ def Main():
 
 	
 	for line in f.readlines():
-         
-         t = threading.Thread(target = PayloadScan, args = (target,args.uc,args.pc,args.exception,line.rstrip('\n')))
-         t.start()
+		 PayloadScan(target,args.uc,args.pc,args.exception,line.rstrip('\n'))
+         #t = threading.Thread(target = PayloadScan, args = (target,args.uc,args.pc,args.exception,line.rstrip('\n')))
+         #t.start()
 	
 
 if __name__ == "__main__":
