@@ -26,7 +26,7 @@ request_headers = {
 about = colored("""
 -----------------------------------------
 --                                     --
--- SQLi login payload Scanner. v.2     --
+-- SQLi login payload Fuzz. v.2        --
 --                                     --
 -- Camoufl4g3                          --
 --                                     --
